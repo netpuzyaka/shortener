@@ -1,33 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { createClient } from "@/lib/supabase/server";
 import { getSupabase } from "@/lib/supabase";
 
 export const dynamic = "force-dynamic";
 
 const ALPHABET = "abcdefghijklmnopqrstuvwxyz0123456789";
 const CODE_LENGTH = 10;
+const TRACK_LENGTH = 16;
 
-const RESERVED = new Set([
-  "stats",
-  "track",
-  "api",
-  "favicon.ico",
-  "robots.txt",
-  "sitemap.xml",
-  "index",
-  "404",
-  "not-found",
-  "vercel",
-]);
-
-function generateCode(): string {
-  const bytes = new Uint8Array(CODE_LENGTH);
+function generateToken(length: number): string {
+  const bytes = new Uint8Array(length);
   crypto.getRandomValues(bytes);
-  let code = "";
-  for (let i = 0; i < CODE_LENGTH; i++) {
-    code += ALPHABET[bytes[i] % ALPHABET.length];
+  let token = "";
+  for (let i = 0; i < length; i++) {
+    token += ALPHABET[bytes[i] % ALPHABET.length];
   }
-  return code;
+  return token;
 }
 
 function normalizeUrl(raw: unknown): string | null {
@@ -68,6 +57,17 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  let userId: string | null = null;
+  try {
+    const auth = await createClient();
+    const {
+      data: { user },
+    } = await auth.auth.getUser();
+    userId = user?.id ?? null;
+  } catch {
+    userId = null;
+  }
+
   let supabase: SupabaseClient;
   try {
     supabase = getSupabase();
@@ -79,57 +79,21 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  let code = typeof body?.custom === "string" ? body.custom.trim() : "";
+  let code = "";
+  let trackId = "";
 
-  if (code) {
-    if (!/^[a-zA-Z0-9_-]{3,32}$/.test(code) || RESERVED.has(code.toLowerCase())) {
-      return NextResponse.json(
-        {
-          error:
-            "Код может содержать только латиницу, цифры, дефис и подчёркивание (от 3 до 32 символов)",
-        },
-        { status: 400 }
-      );
-    }
-    try {
+  try {
+    for (let attempt = 0; attempt < 5; attempt++) {
+      const candidate = generateToken(CODE_LENGTH);
       const { data: existing } = await supabase
         .from("links")
         .select("id")
-        .eq("code", code)
+        .eq("code", candidate)
         .maybeSingle();
-      if (existing) {
-        return NextResponse.json(
-          { error: "Этот код уже занят, выберите другой" },
-          { status: 409 }
-        );
+      if (!existing) {
+        code = candidate;
+        break;
       }
-    } catch (err) {
-      console.error("Ошибка проверки кода:", err);
-      return NextResponse.json(
-        { error: "Не удалось подключиться к базе данных. Проверьте переменные окружения" },
-        { status: 500 }
-      );
-    }
-  } else {
-    try {
-      for (let attempt = 0; attempt < 5; attempt++) {
-        const candidate = generateCode();
-        const { data: existing } = await supabase
-          .from("links")
-          .select("id")
-          .eq("code", candidate)
-          .maybeSingle();
-        if (!existing) {
-          code = candidate;
-          break;
-        }
-      }
-    } catch (err) {
-      console.error("Ошибка генерации кода:", err);
-      return NextResponse.json(
-        { error: "Не удалось подключиться к базе данных. Проверьте переменные окружения" },
-        { status: 500 }
-      );
     }
     if (!code) {
       return NextResponse.json(
@@ -137,13 +101,30 @@ export async function POST(req: NextRequest) {
         { status: 500 }
       );
     }
-  }
 
-  try {
+    for (let attempt = 0; attempt < 5; attempt++) {
+      const candidate = generateToken(TRACK_LENGTH);
+      const { data: existing } = await supabase
+        .from("links")
+        .select("id")
+        .eq("track_id", candidate)
+        .maybeSingle();
+      if (!existing) {
+        trackId = candidate;
+        break;
+      }
+    }
+    if (!trackId) {
+      return NextResponse.json(
+        { error: "Не удалось сгенерировать идентификатор статистики, попробуйте ещё раз" },
+        { status: 500 }
+      );
+    }
+
     const { data: link, error } = await supabase
       .from("links")
-      .insert({ code, url })
-      .select("code, url")
+      .insert({ code, url, user_id: userId, track_id: trackId })
+      .select("code, url, track_id")
       .single();
 
     if (error || !link) {
@@ -167,7 +148,7 @@ export async function POST(req: NextRequest) {
       shortUrl: `${origin}/${link.code}`,
       code: link.code,
       longUrl: link.url,
-      statsUrl: `${origin}/stats/${link.code}`,
+      trackUrl: `${origin}/track/${link.track_id}`,
     });
   } catch (err) {
     console.error("Ошибка создания ссылки:", err);

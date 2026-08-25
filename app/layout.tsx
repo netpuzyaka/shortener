@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
+import LogoutButton from "@/components/logout-button";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -19,7 +21,18 @@ export const metadata: Metadata = {
     "Бесплатный сократитель ссылок с отслеживанием переходов: страна, регион, город, устройство, браузер и источник каждого клика.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  let email: string | null = null;
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    email = user?.email ?? null;
+  } catch {
+    email = null;
+  }
+
   return (
     <html
       lang="ru"
@@ -34,13 +47,33 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               </span>
               <span>LinkShort</span>
             </Link>
-            <nav className="flex items-center gap-5 text-sm text-zinc-400">
-              <Link href="/#features" className="hover:text-white transition-colors">
+            <nav className="flex items-center gap-4 text-sm text-zinc-400">
+              <Link href="/#features" className="hidden sm:block hover:text-white transition-colors">
                 Возможности
               </Link>
-              <Link href="/#how" className="hover:text-white transition-colors">
-                Как работает
-              </Link>
+              {email ? (
+                <>
+                  <Link href="/dashboard" className="hover:text-white transition-colors">
+                    Мои ссылки
+                  </Link>
+                  <span className="hidden md:block text-zinc-500 max-w-40 truncate">
+                    {email}
+                  </span>
+                  <LogoutButton />
+                </>
+              ) : (
+                <>
+                  <Link href="/login" className="hover:text-white transition-colors">
+                    Войти
+                  </Link>
+                  <Link
+                    href="/register"
+                    className="rounded-lg bg-gradient-to-r from-accent to-accent-2 px-3.5 py-1.5 font-medium text-white shadow-sm shadow-accent/25 transition hover:opacity-90"
+                  >
+                    Регистрация
+                  </Link>
+                </>
+              )}
             </nav>
           </div>
         </header>

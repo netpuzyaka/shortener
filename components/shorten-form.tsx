@@ -7,7 +7,7 @@ type ShortenResult = {
   shortUrl: string;
   code: string;
   longUrl: string;
-  statsUrl: string;
+  trackUrl: string;
 };
 
 export default function ShortenForm({
@@ -130,7 +130,7 @@ export default function ShortenForm({
               {copied ? "Скопировано!" : "Копировать"}
             </button>
             <Link
-              href={`/track/${result.code}`}
+              href={result.trackUrl}
               className="rounded-xl bg-gradient-to-r from-accent to-accent-2 px-5 py-3 text-sm font-semibold text-white shadow-md shadow-accent/25 transition hover:opacity-90 text-center whitespace-nowrap"
             >
               Статистика

@@ -8,8 +8,14 @@ create table if not exists links (
   id uuid primary key default gen_random_uuid(),
   code text not null unique,
   url text not null,
+  user_id uuid references auth.users(id) on delete cascade,
+  track_id text unique,
   created_at timestamptz not null default now()
 );
+
+-- Новые колонки для уже существующих таблиц (если скрипт выполняется повторно)
+alter table links add column if not exists user_id uuid references auth.users(id) on delete cascade;
+alter table links add column if not exists track_id text unique;
 
 -- Таблица переходов (кликов)
 create table if not exists clicks (
@@ -44,6 +50,27 @@ as $$
     'total_clicks', (select count(*)::bigint from clicks),
     'links_24h',    (select count(*)::bigint from links where created_at > now() - interval '24 hours')
   );
+$$;
+
+-- Список ссылок пользователя со статистикой (вызывается через supabase.rpc('user_links_stats', { p_user_id }))
+create or replace function user_links_stats(p_user_id uuid)
+returns json
+language sql
+stable
+as $$
+  select coalesce(json_agg(t order by t.created_at desc), '[]'::json)
+  from (
+    select
+      l.id,
+      l.code,
+      l.url,
+      l.track_id,
+      l.created_at,
+      (select count(*)::bigint from clicks c where c.link_id = l.id) as total_clicks,
+      (select max(c2.created_at) from clicks c2 where c2.link_id = l.id) as last_click_at
+    from links l
+    where l.user_id = p_user_id
+  ) t;
 $$;
 
 -- Агрегированная статистика по ссылке (вызывается через supabase.rpc('link_stats', { p_link_id }))

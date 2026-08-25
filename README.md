@@ -8,31 +8,55 @@
 - **Источники переходов** — реферер (сайт, мессенджер, прямой переход)
 - **Графики** — динамика за 30 дней и активность по часам
 - **Мгновенный редирект** — статистика пишется в фоне, посетитель ничего не замечает
+- **Аккаунты** — регистрация по email с подтверждением, личный кабинет «Мои ссылки»
+- **Приватная статистика** — страница статистики доступна по секретному `/track/<id>`, а не по короткому коду
 
-Стек: Next.js (App Router, TypeScript, Tailwind) · Vercel · Supabase Postgres.
+Стек: Next.js (App Router, TypeScript, Tailwind) · Vercel · Supabase (Postgres + Auth).
 
-## Развёртывание (5 минут)
+## Развёртывание
 
 ### 1. База данных Supabase (бесплатно)
 
 1. Зарегистрируйтесь на [supabase.com](https://supabase.com) и создайте проект.
 2. Откройте **SQL Editor → New query**, вставьте содержимое файла `schema.sql` и выполните (Run).
-3. В **Project Settings → API** скопируйте два значения:
-   - `Project URL` → `SUPABASE_URL`
-   - `service_role` key → `SUPABASE_SERVICE_ROLE_KEY`
 
-### 2. Деплой на Vercel (бесплатно)
+### 2. Настройка авторизации (Supabase)
 
-1. Загрузите этот проект на GitHub (создайте репозиторий и запушите).
-2. На [vercel.com](https://vercel.com) нажмите **Add New → Project** и импортируйте репозиторий (фреймворк определится сам — Next.js).
-3. Перед деплоем добавьте переменные окружения **Settings → Environment Variables**:
+1. **Authentication → URL Configuration**: укажите Site URL = `https://ваш-проект.vercel.app` и добавьте Redirect URL `https://ваш-проект.vercel.app/auth/callback`.
+2. **Authentication → Providers → Email**: оставьте «Confirm email» включённым.
+3. **Authentication → Email Templates** — настройте текст письма (шаблоны ниже).
+
+### 3. Деплой на Vercel (бесплатно)
+
+1. Загрузите проект на GitHub и импортируйте репозиторий на [vercel.com](https://vercel.com).
+2. Добавьте переменные окружения **Settings → Environment Variables**:
+
    | Имя | Значение |
    |---|---|
-   | `SUPABASE_URL` | URL из Supabase |
+   | `NEXT_PUBLIC_SUPABASE_URL` | Project URL из Supabase |
+   | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | anon public key из Supabase |
+   | `SUPABASE_URL` | Project URL из Supabase |
    | `SUPABASE_SERVICE_ROLE_KEY` | service_role key из Supabase |
-4. Нажмите **Deploy**. Готово — сайт доступен по адресу `https://ваш-проект.vercel.app`.
 
-> Гео-данные (страна/регион/город) доступны автоматически на Vercel — для этого ничего настраивать не нужно.
+3. Нажмите **Deploy**.
+
+> Все ключи находятся в Supabase → Project Settings → API.
+
+## Письма от имени «Shortner»
+
+Бесплатно Supabase отправляет письма от своего имени. Чтобы письма приходили от **Shortner**:
+
+1. Заведите бесплатный аккаунт [Resend](https://resend.com), добавьте свой домен.
+2. Supabase → **Authentication → SMTP Settings** → включите Custom SMTP и вставьте данные Resend (SMTP-сервер `smtp.resend.com`, логин `resend`, пароль — API-ключ Resend). В поле «Sender name» укажите `Shortner`.
+3. В **Email Templates** задайте тему и текст письма, например:
+
+   **Confirm signup** — Тема: `Подтвердите регистрацию в Shortner`
+   ```
+   <h2>Добро пожаловать в Shortner!</h2>
+   <p>Подтвердите ваш email, чтобы начать пользоваться сервисом:</p>
+   <p><a href="{{ .ConfirmationURL }}">Подтвердить email</a></p>
+   <p>Если это были не вы — просто проигнорируйте письмо.</p>
+   ```
 
 ## Локальный запуск
 
@@ -50,18 +74,25 @@ npm run dev
 
 ```
 app/
-  page.tsx               — главная страница с формой и живыми счётчиками
+  page.tsx               — главная страница с формой и счётчиками
   api/shorten/route.ts   — API создания короткой ссылки
+  api/links/[id]/route.ts — удаление своей ссылки
   [code]/route.ts        — редирект + запись перехода
-  track/[code]/page.tsx  — страница статистики (https://ваш-домен/track/код)
-  stats/[code]/page.tsx  — редирект со старого адреса /stats/ на /track/
-components/              — форма, дашборд с графиками, счётчик
-lib/                     — клиент Supabase, типы
+  track/[id]/page.tsx    — статистика по секретному /track/<id>
+  stats/[code]/page.tsx  — редирект со старого адреса
+  dashboard/page.tsx     — «Мои ссылки»
+  login/ register/       — вход и регистрация
+  auth/callback/route.ts — подтверждение email
+components/              — форма, дашборды, авторизация
+lib/supabase/            — клиенты: серверный (service_role), SSR и браузерный
+proxy.ts                 — обновление сессии и защита /dashboard
 schema.sql               — схема базы данных
 ```
 
 ## Безопасность
 
-- Ключ `service_role` используется только на сервере (`lib/supabase.ts` защищён через `server-only`) и никогда не попадает в браузер.
+- Ключ `service_role` используется только на сервере и никогда не попадает в браузер.
+- Все операции с личными ссылками проверяют владельца по `user_id`.
 - IP-адреса в статистике показываются частично скрытыми (`1.2.3.x`).
+- Статистика по ссылке доступна только по секретному `track_id` (16 случайных символов).
 - Некорректные и слишком длинные URL отклоняются, ссылки на localhost/внутренние адреса в продакшене запрещены.

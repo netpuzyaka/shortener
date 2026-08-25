@@ -27,11 +27,22 @@ export default async function TrackPage({ params }: PageProps<"/track/[code]">) 
   try {
     const supabase = getSupabase();
 
-    const linkResult = await supabase
+    let linkResult = await supabase
       .from("links")
       .select("id, code, url, created_at")
-      .eq("code", code)
+      .eq("track_id", code)
       .maybeSingle();
+
+    if (!linkResult.data) {
+      // поддержка старых ссылок, созданных до появления track_id
+      linkResult = await supabase
+        .from("links")
+        .select("id, code, url, created_at")
+        .eq("code", code)
+        .is("track_id", null)
+        .maybeSingle();
+    }
+
     link = linkResult.data;
 
     if (link) {
