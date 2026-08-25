@@ -10,9 +10,9 @@
 - **Мгновенный редирект** — статистика пишется в фоне, посетитель ничего не замечает
 - **Аккаунты** — регистрация по email с подтверждением, личный кабинет «Мои ссылки»
 - **Приватная статистика** — страница статистики доступна по секретному `/track/<id>`, а не по короткому коду
-- **Два способа сокращения** — обычный (свой домен + аналитика) и через **Topvisor API** (`tpvsr.com` — короче ссылка)
+- **Два способа сокращения** — обычный (свой домен + аналитика) и бесплатные внешние API **CleanURI** и **clck.ru** (короткие ссылки без ключей)
 
-Стек: Next.js (App Router, TypeScript, Tailwind) · Vercel · Supabase (Postgres + Auth) · Topvisor API.
+Стек: Next.js (App Router, TypeScript, Tailwind) · Vercel · Supabase (Postgres + Auth) · CleanURI / clck.ru API.
 
 ## Развёртывание
 
@@ -38,25 +38,21 @@
    | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | anon public key из Supabase |
    | `SUPABASE_URL` | Project URL из Supabase |
    | `SUPABASE_SERVICE_ROLE_KEY` | service_role key из Supabase |
-   | `TOPVISOR_USER_ID` | User ID из кабинета Topvisor (необязательно) |
-   | `TOPVISOR_API_KEY` | API key из кабинета Topvisor (необязательно) |
 
 3. Нажмите **Deploy**.
 
 > Все ключи Supabase находятся в Supabase → Project Settings → API.
 
-## Сокращение через Topvisor
+## Сокращение через внешние сервисы
 
-Кнопки «Обычный / Topvisor» в форме переключают способ сокращения:
+Кнопки «Обычный / CleanURI / clck.ru» в форме переключают способ сокращения:
 
 - **Обычный** — ссылка на вашем домене с полной аналитикой переходов (наш сервис)
-- **Topvisor** — ссылка вида `https://tpvsr.com/abcd1234/` (короткий домен), статистика — в кабинете Topvisor
+- **CleanURI** — бесплатный API без ключей: `https://cleanuri.com/xxxx`
+- **clck.ru** — сокращатель Яндекса, без ключей: `https://clck.ru/XXXXX`
 
-Для работы Topvisor:
-
-1. Зарегистрируйтесь на [topvisor.com](https://topvisor.com) и получите API-доступ: **Профиль → Настройки → API** (нужны `User ID` и `API key`).
-2. Добавьте их в переменные окружения Vercel: `TOPVISOR_USER_ID` и `TOPVISOR_API_KEY`.
-3. Сделайте Redeploy.
+Внешние сервисы не требуют настройки — они работают сразу после деплоя.
+Статистика переходов для внешних ссылок у нас не отслеживается (клики идут мимо нашего сайта), поэтому в кабинете у них стоит пометка «не отслеживается».
 
 ## Письма от имени «Shortner»
 

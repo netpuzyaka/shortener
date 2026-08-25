@@ -20,6 +20,19 @@ function fmtDate(value: string | null): string {
   });
 }
 
+function providerBadge(shortUrl: string | null): string | null {
+  if (!shortUrl) return null;
+  try {
+    const host = new URL(shortUrl).hostname;
+    if (host.includes("cleanuri")) return "CleanURI";
+    if (host.includes("clck.ru")) return "clck.ru";
+    if (host.includes("tpvsr")) return "Topvisor";
+    return "Внешний";
+  } catch {
+    return null;
+  }
+}
+
 export default function Dashboard({
   links,
   email,
@@ -131,9 +144,9 @@ export default function Dashboard({
                   >
                     {copiedCode === (link.short_url ?? link.code) ? "Скопировано!" : "Копировать"}
                   </button>
-                  {link.short_url && (
+                  {providerBadge(link.short_url) && (
                     <span className="shrink-0 rounded-md border border-accent-2/30 bg-accent-2/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-accent-2">
-                      Topvisor
+                      {providerBadge(link.short_url)}
                     </span>
                   )}
                 </div>
@@ -151,7 +164,7 @@ export default function Dashboard({
                 {link.short_url ? (
                   <div className="text-right">
                     <p className="text-xs text-zinc-500">статистика</p>
-                    <p className="text-sm text-zinc-400">в Topvisor</p>
+                    <p className="text-sm text-zinc-400">не отслеживается</p>
                   </div>
                 ) : (
                   <>

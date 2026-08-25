@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { getSupabase } from "@/lib/supabase";
-import { shortenWithTopvisor } from "@/lib/topvisor";
+import { shortenExternal, type ExternalProvider } from "@/lib/providers";
 
 export const dynamic = "force-dynamic";
 
@@ -69,26 +69,25 @@ export async function POST(req: NextRequest) {
     userId = null;
   }
 
-  const provider = body?.provider === "topvisor" ? "topvisor" : "own";
+  const provider: "own" | ExternalProvider =
+    body?.provider === "cleanuri" || body?.provider === "clckru"
+      ? body.provider
+      : "own";
 
   let externalShortUrl: string | null = null;
-  if (provider === "topvisor") {
+  if (provider !== "own") {
     try {
-      externalShortUrl = await shortenWithTopvisor(url);
+      externalShortUrl = await shortenExternal(provider, url);
     } catch (err) {
-      console.error("Ошибка Topvisor:", err);
+      console.error(`Ошибка ${provider}:`, err);
       const message = err instanceof Error ? err.message : "";
-      if (message.startsWith("TOPVISOR_NOT_CONFIGURED")) {
-        return NextResponse.json(
-          { error: "Сокращение через Topvisor не настроено на этом сайте" },
-          { status: 400 }
-        );
-      }
       return NextResponse.json(
         {
-          error: message.startsWith("TOPVISOR_ERROR")
-            ? `Topvisor не смог сократить ссылку: ${message.slice("TOPVISOR_ERROR: ".length)}`
-            : "Topvisor временно недоступен, попробуйте ещё раз",
+          error: message.startsWith("CLEANURI_ERROR")
+            ? `CleanURI не смог сократить ссылку: ${message.slice("CLEANURI_ERROR: ".length)}`
+            : message.startsWith("CLCKRU_ERROR")
+              ? `clck.ru не смог сократить ссылку: ${message.slice("CLCKRU_ERROR: ".length)}`
+              : "Сервис сокращения временно недоступен, попробуйте ещё раз",
         },
         { status: 502 }
       );
