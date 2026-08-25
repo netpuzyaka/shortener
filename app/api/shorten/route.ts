@@ -70,7 +70,10 @@ export async function POST(req: NextRequest) {
   }
 
   const provider: "own" | ExternalProvider =
-    body?.provider === "cleanuri" || body?.provider === "clckru"
+    body?.provider === "cleanuri" ||
+    body?.provider === "clckru" ||
+    body?.provider === "dagd" ||
+    body?.provider === "vurl"
       ? body.provider
       : "own";
 
@@ -144,7 +147,11 @@ export async function POST(req: NextRequest) {
               ? `CleanURI не смог сократить ссылку: ${message.slice("CLEANURI_ERROR: ".length)}`
               : message.startsWith("CLCKRU_ERROR")
                 ? `clck.ru не смог сократить ссылку: ${message.slice("CLCKRU_ERROR: ".length)}`
-                : "Сервис сокращения временно недоступен, попробуйте ещё раз",
+                : message.startsWith("DAGD_ERROR")
+                  ? `da.gd не смог сократить ссылку: ${message.slice("DAGD_ERROR: ".length)}`
+                  : message.startsWith("VURL_ERROR")
+                    ? `vurl.com не смог сократить ссылку: ${message.slice("VURL_ERROR: ".length)}`
+                    : "Сервис сокращения временно недоступен, попробуйте ещё раз",
           },
           { status: 502 }
         );

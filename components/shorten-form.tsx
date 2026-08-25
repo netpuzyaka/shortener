@@ -10,12 +10,14 @@ type ShortenResult = {
   trackUrl: string;
 };
 
-type Provider = "own" | "cleanuri" | "clckru";
+type Provider = "own" | "cleanuri" | "clckru" | "dagd" | "vurl";
 
 const PROVIDER_LABELS: Record<Provider, string> = {
   own: "Обычный",
   cleanuri: "CleanURI",
   clckru: "clck.ru",
+  dagd: "da.gd",
+  vurl: "vurl.com",
 };
 
 export default function ShortenForm({
@@ -84,7 +86,7 @@ export default function ShortenForm({
   return (
     <div className="w-full">
       <div className="mb-3 flex flex-col items-center gap-2">
-        <div className="inline-flex rounded-xl border border-white/10 bg-white/[0.04] p-1">
+        <div className="inline-flex flex-wrap justify-center rounded-xl border border-white/10 bg-white/[0.04] p-1">
           {(Object.keys(PROVIDER_LABELS) as Provider[]).map((p) => (
             <button
               key={p}
@@ -104,7 +106,7 @@ export default function ShortenForm({
           <p className="rounded-xl border border-amber-400/30 bg-amber-400/10 px-4 py-2.5 text-xs text-amber-300 leading-relaxed">
             Предупреждение: обычный сократитель добавляет к домену 10 случайных
             символов, поэтому ссылка может получиться не короче исходной. Хотите
-            действительно короткую ссылку — выберите CleanURI или clck.ru.
+            действительно короткую ссылку — выберите один из внешних сервисов.
           </p>
         ) : (
           <p className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-xs text-zinc-400 leading-relaxed">
