@@ -26,9 +26,6 @@ function providerBadge(shortUrl: string | null): string | null {
     const host = new URL(shortUrl).hostname;
     if (host.includes("cleanuri")) return "CleanURI";
     if (host.includes("clck.ru")) return "clck.ru";
-    if (host.includes("da.gd")) return "da.gd";
-    if (host.includes("vurl.com")) return "vurl.com";
-    if (host.includes("tpvsr")) return "Topvisor";
     return "Внешний";
   } catch {
     return null;

@@ -10,14 +10,12 @@ type ShortenResult = {
   trackUrl: string;
 };
 
-type Provider = "own" | "cleanuri" | "clckru" | "dagd" | "vurl";
+type Provider = "own" | "cleanuri" | "clckru";
 
 const PROVIDER_LABELS: Record<Provider, string> = {
   own: "Обычный",
   cleanuri: "CleanURI",
   clckru: "clck.ru",
-  dagd: "da.gd",
-  vurl: "vurl.com",
 };
 
 export default function ShortenForm({
