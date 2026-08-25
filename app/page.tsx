@@ -35,7 +35,7 @@ const STEPS = [
   {
     step: "1",
     title: "Вставьте ссылку",
-    text: "Любую длинную ссылку — она сократится за секунду. Можно задать свой короткий код.",
+    text: "Любую длинную ссылку — уникальный короткий код сгенерируется автоматически.",
   },
   {
     step: "2",
@@ -56,18 +56,15 @@ export default async function Home({ searchParams }: PageProps<"/">) {
   const dbError = typeof params.error === "string" ? params.error : undefined;
 
   let totalLinks: number | null = null;
-  let totalClicks: number | null = null;
   let linksToday: number | null = null;
 
   try {
     const supabase = getSupabase();
     const { data } = await supabase.rpc("site_stats");
     totalLinks = data?.total_links ?? 0;
-    totalClicks = data?.total_clicks ?? 0;
     linksToday = data?.links_24h ?? 0;
   } catch {
     totalLinks = null;
-    totalClicks = null;
     linksToday = null;
   }
 
@@ -90,8 +87,8 @@ export default async function Home({ searchParams }: PageProps<"/">) {
           <ShortenForm notFoundCode={notFoundCode} dbError={dbError} />
         </div>
 
-        {totalLinks !== null && totalClicks !== null && linksToday !== null && (
-          <div className="mx-auto mt-12 grid max-w-2xl gap-4 sm:grid-cols-3">
+        {totalLinks !== null && linksToday !== null && (
+          <div className="mx-auto mt-12 grid max-w-2xl gap-4 sm:grid-cols-2">
             <div className="card px-4 py-5">
               <p className="text-2xl sm:text-3xl font-bold tracking-tight text-gradient">
                 <Counter value={totalLinks} />
@@ -99,12 +96,6 @@ export default async function Home({ searchParams }: PageProps<"/">) {
               <p className="mt-1 text-sm text-slate-500">
                 ссылок сокращено за всё время
               </p>
-            </div>
-            <div className="card px-4 py-5">
-              <p className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
-                <Counter value={totalClicks} />
-              </p>
-              <p className="mt-1 text-sm text-slate-500">переходов отслежено</p>
             </div>
             <div className="card px-4 py-5">
               <p className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">

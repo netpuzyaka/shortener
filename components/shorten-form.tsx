@@ -18,7 +18,6 @@ export default function ShortenForm({
   dbError?: string;
 }) {
   const [url, setUrl] = useState("");
-  const [custom, setCustom] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<ShortenResult | null>(null);
@@ -39,7 +38,7 @@ export default function ShortenForm({
       const res = await fetch("/api/shorten", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url, custom }),
+        body: JSON.stringify({ url }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -48,7 +47,6 @@ export default function ShortenForm({
       }
       setResult(data);
       setUrl("");
-      setCustom("");
     } catch {
       setError("Не удалось связаться с сервером");
     } finally {
@@ -86,26 +84,13 @@ export default function ShortenForm({
           autoComplete="off"
           spellCheck={false}
         />
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={custom}
-            onChange={(e) => setCustom(e.target.value.replace(/[^a-zA-Z0-9_-]/g, ""))}
-            placeholder="Свой код"
-            maxLength={32}
-            className="w-32 rounded-xl bg-white px-4 py-3 text-base text-slate-900 outline-none border border-slate-200 focus:border-accent focus:ring-2 focus:ring-accent/15 transition font-mono"
-            autoComplete="off"
-            spellCheck={false}
-            title="Необязательно: свой короткий код (латиница, цифры, - и _)"
-          />
-          <button
-            type="submit"
-            disabled={loading}
-            className="rounded-xl bg-gradient-to-r from-accent to-accent-2 px-6 py-3 font-semibold text-white shadow-md shadow-accent/25 transition hover:opacity-90 active:scale-[0.98] disabled:opacity-50 whitespace-nowrap"
-          >
-            {loading ? "Сокращаем…" : "Сократить"}
-          </button>
-        </div>
+        <button
+          type="submit"
+          disabled={loading}
+          className="rounded-xl bg-gradient-to-r from-accent to-accent-2 px-6 py-3 font-semibold text-white shadow-md shadow-accent/25 transition hover:opacity-90 active:scale-[0.98] disabled:opacity-50 whitespace-nowrap"
+        >
+          {loading ? "Сокращаем…" : "Сократить"}
+        </button>
       </form>
 
       {dbError === "db" && (
