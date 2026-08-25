@@ -35,10 +35,11 @@ export default function Dashboard({
 
   const origin = typeof window !== "undefined" ? window.location.origin : "";
 
-  async function copy(code: string) {
+  async function copy(value: string) {
+    const text = value.startsWith("http") ? value : `${origin}/${value}`;
     try {
-      await navigator.clipboard.writeText(`${origin}/${code}`);
-      setCopiedCode(code);
+      await navigator.clipboard.writeText(text);
+      setCopiedCode(value);
       setTimeout(() => setCopiedCode(null), 2000);
     } catch {
       /* noop */
@@ -117,19 +118,24 @@ export default function Dashboard({
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
                   <a
-                    href={`${origin}/${link.code}`}
+                    href={link.short_url ?? `${origin}/${link.code}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="truncate font-mono text-base sm:text-lg font-semibold text-accent-2 hover:underline"
                   >
-                    {origin}/{link.code}
+                    {link.short_url ?? `${origin}/${link.code}`}
                   </a>
                   <button
-                    onClick={() => copy(link.code)}
+                    onClick={() => copy(link.short_url ?? link.code)}
                     className="shrink-0 rounded-lg border border-white/15 px-2.5 py-1 text-xs text-zinc-300 hover:border-accent hover:text-white transition-colors"
                   >
-                    {copiedCode === link.code ? "Скопировано!" : "Копировать"}
+                    {copiedCode === (link.short_url ?? link.code) ? "Скопировано!" : "Копировать"}
                   </button>
+                  {link.short_url && (
+                    <span className="shrink-0 rounded-md border border-accent-2/30 bg-accent-2/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-accent-2">
+                      Topvisor
+                    </span>
+                  )}
                 </div>
                 <p className="mt-1 truncate text-sm text-zinc-400">
                   Ведёт на: <span className="text-zinc-300">{link.url}</span>
@@ -142,18 +148,27 @@ export default function Dashboard({
                 </p>
               </div>
               <div className="flex items-center gap-3 shrink-0">
-                <div className="text-right">
-                  <p className="text-xl font-bold text-white">
-                    {nf.format(link.total_clicks)}
-                  </p>
-                  <p className="text-xs text-zinc-500">переходов</p>
-                </div>
-                <Link
-                  href={`/track/${link.track_id ?? link.code}`}
-                  className="rounded-xl bg-gradient-to-r from-accent to-accent-2 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-accent/25 transition hover:opacity-90 whitespace-nowrap"
-                >
-                  Статистика
-                </Link>
+                {link.short_url ? (
+                  <div className="text-right">
+                    <p className="text-xs text-zinc-500">статистика</p>
+                    <p className="text-sm text-zinc-400">в Topvisor</p>
+                  </div>
+                ) : (
+                  <>
+                    <div className="text-right">
+                      <p className="text-xl font-bold text-white">
+                        {nf.format(link.total_clicks)}
+                      </p>
+                      <p className="text-xs text-zinc-500">переходов</p>
+                    </div>
+                    <Link
+                      href={`/track/${link.track_id ?? link.code}`}
+                      className="rounded-xl bg-gradient-to-r from-accent to-accent-2 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-accent/25 transition hover:opacity-90 whitespace-nowrap"
+                    >
+                      Статистика
+                    </Link>
+                  </>
+                )}
                 <button
                   onClick={() => remove(link.id)}
                   disabled={deleting === link.id}

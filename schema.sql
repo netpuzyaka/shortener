@@ -10,12 +10,14 @@ create table if not exists links (
   url text not null,
   user_id uuid references auth.users(id) on delete cascade,
   track_id text unique,
+  short_url text,
   created_at timestamptz not null default now()
 );
 
 -- Новые колонки для уже существующих таблиц (если скрипт выполняется повторно)
 alter table links add column if not exists user_id uuid references auth.users(id) on delete cascade;
 alter table links add column if not exists track_id text unique;
+alter table links add column if not exists short_url text;
 
 -- Таблица переходов (кликов)
 create table if not exists clicks (
@@ -65,6 +67,7 @@ as $$
       l.code,
       l.url,
       l.track_id,
+      l.short_url,
       l.created_at,
       (select count(*)::bigint from clicks c where c.link_id = l.id) as total_clicks,
       (select max(c2.created_at) from clicks c2 where c2.link_id = l.id) as last_click_at

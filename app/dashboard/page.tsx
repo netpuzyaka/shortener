@@ -15,6 +15,7 @@ export type UserLink = {
   code: string;
   url: string;
   track_id: string | null;
+  short_url: string | null;
   created_at: string;
   total_clicks: number;
   last_click_at: string | null;

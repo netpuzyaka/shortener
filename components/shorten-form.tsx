@@ -8,7 +8,10 @@ type ShortenResult = {
   code: string;
   longUrl: string;
   trackUrl: string;
+  external: boolean;
 };
+
+type Provider = "own" | "topvisor";
 
 export default function ShortenForm({
   notFoundCode,
@@ -18,6 +21,7 @@ export default function ShortenForm({
   dbError?: string;
 }) {
   const [url, setUrl] = useState("");
+  const [provider, setProvider] = useState<Provider>("own");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<ShortenResult | null>(null);
@@ -38,7 +42,7 @@ export default function ShortenForm({
       const res = await fetch("/api/shorten", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url }),
+        body: JSON.stringify({ url, provider }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -74,6 +78,45 @@ export default function ShortenForm({
 
   return (
     <div className="w-full">
+      <div className="mb-3 flex flex-col items-center gap-2">
+        <div className="inline-flex rounded-xl border border-white/10 bg-white/[0.04] p-1">
+          <button
+            type="button"
+            onClick={() => setProvider("own")}
+            className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
+              provider === "own"
+                ? "bg-gradient-to-r from-accent to-accent-2 text-white shadow-md shadow-accent/25"
+                : "text-zinc-400 hover:text-white"
+            }`}
+          >
+            Обычный
+          </button>
+          <button
+            type="button"
+            onClick={() => setProvider("topvisor")}
+            className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
+              provider === "topvisor"
+                ? "bg-gradient-to-r from-accent to-accent-2 text-white shadow-md shadow-accent/25"
+                : "text-zinc-400 hover:text-white"
+            }`}
+          >
+            Topvisor
+          </button>
+        </div>
+        {provider === "own" ? (
+          <p className="rounded-xl border border-amber-400/30 bg-amber-400/10 px-4 py-2.5 text-xs text-amber-300 leading-relaxed">
+            Предупреждение: обычный сократитель добавляет к домену 10 случайных
+            символов, поэтому ссылка может получиться не короче исходной. Хотите
+            действительно короткую ссылку — выберите Topvisor.
+          </p>
+        ) : (
+          <p className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-xs text-zinc-400 leading-relaxed">
+            Ссылка будет вида <span className="font-mono text-accent-2">tpvsr.com/abcd1234/</span> —
+            короче обычной. Статистика переходов — в кабинете Topvisor.
+          </p>
+        )}
+      </div>
+
       <form onSubmit={handleSubmit} className="card p-2 sm:p-3 flex flex-col sm:flex-row gap-2">
         <input
           type="url"
@@ -129,14 +172,21 @@ export default function ShortenForm({
             >
               {copied ? "Скопировано!" : "Копировать"}
             </button>
-            <Link
-              href={result.trackUrl}
-              className="rounded-xl bg-gradient-to-r from-accent to-accent-2 px-5 py-3 text-sm font-semibold text-white shadow-md shadow-accent/25 transition hover:opacity-90 text-center whitespace-nowrap"
-            >
-              Статистика
-            </Link>
+            {!result.external && (
+              <Link
+                href={result.trackUrl}
+                className="rounded-xl bg-gradient-to-r from-accent to-accent-2 px-5 py-3 text-sm font-semibold text-white shadow-md shadow-accent/25 transition hover:opacity-90 text-center whitespace-nowrap"
+              >
+                Статистика
+              </Link>
+            )}
           </div>
           <p className="mt-3 truncate text-xs text-zinc-500">{result.longUrl}</p>
+          {result.external && (
+            <p className="mt-2 text-xs text-zinc-500">
+              Статистика переходов доступна в кабинете Topvisor.
+            </p>
+          )}
         </div>
       )}
     </div>

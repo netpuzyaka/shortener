@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { getSupabase } from "@/lib/supabase";
+import { shortenWithTopvisor } from "@/lib/topvisor";
 
 export const dynamic = "force-dynamic";
 
@@ -68,6 +69,32 @@ export async function POST(req: NextRequest) {
     userId = null;
   }
 
+  const provider = body?.provider === "topvisor" ? "topvisor" : "own";
+
+  let externalShortUrl: string | null = null;
+  if (provider === "topvisor") {
+    try {
+      externalShortUrl = await shortenWithTopvisor(url);
+    } catch (err) {
+      console.error("Ошибка Topvisor:", err);
+      const message = err instanceof Error ? err.message : "";
+      if (message.startsWith("TOPVISOR_NOT_CONFIGURED")) {
+        return NextResponse.json(
+          { error: "Сокращение через Topvisor не настроено на этом сайте" },
+          { status: 400 }
+        );
+      }
+      return NextResponse.json(
+        {
+          error: message.startsWith("TOPVISOR_ERROR")
+            ? `Topvisor не смог сократить ссылку: ${message.slice("TOPVISOR_ERROR: ".length)}`
+            : "Topvisor временно недоступен, попробуйте ещё раз",
+        },
+        { status: 502 }
+      );
+    }
+  }
+
   let supabase: SupabaseClient;
   try {
     supabase = getSupabase();
@@ -123,8 +150,8 @@ export async function POST(req: NextRequest) {
 
     const { data: link, error } = await supabase
       .from("links")
-      .insert({ code, url, user_id: userId, track_id: trackId })
-      .select("code, url, track_id")
+      .insert({ code, url, user_id: userId, track_id: trackId, short_url: externalShortUrl })
+      .select("code, url, track_id, short_url")
       .single();
 
     if (error || !link) {
@@ -145,10 +172,11 @@ export async function POST(req: NextRequest) {
     const origin = req.nextUrl.origin;
 
     return NextResponse.json({
-      shortUrl: `${origin}/${link.code}`,
+      shortUrl: link.short_url ?? `${origin}/${link.code}`,
       code: link.code,
       longUrl: link.url,
       trackUrl: `${origin}/track/${link.track_id}`,
+      external: Boolean(link.short_url),
     });
   } catch (err) {
     console.error("Ошибка создания ссылки:", err);
