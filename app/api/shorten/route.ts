@@ -148,8 +148,11 @@ export async function POST(req: NextRequest) {
 
     if (error || !link) {
       console.error("Ошибка создания ссылки:", error);
+      const detail = error?.message ?? "неизвестная ошибка";
       return NextResponse.json(
-        { error: "Не удалось создать ссылку. Проверьте настройки базы данных" },
+        {
+          error: `Не удалось создать ссылку: ${detail}. Если написано "relation ... does not exist" — выполните schema.sql в SQL Editor Supabase`,
+        },
         { status: 500 }
       );
     }
