@@ -8,7 +8,6 @@ type ShortenResult = {
   code: string;
   longUrl: string;
   trackUrl: string;
-  external: boolean;
 };
 
 type Provider = "own" | "cleanuri" | "clckru";
@@ -110,7 +109,8 @@ export default function ShortenForm({
         ) : (
           <p className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-xs text-zinc-400 leading-relaxed">
             Ссылка будет короче — от сервиса {PROVIDER_LABELS[provider]}.
-            Статистика переходов по внешним сервисам у нас не отслеживается.
+            Статистика переходов всё равно отслеживается: клик незаметно
+            проходит через наш сервер.
           </p>
         )}
       </div>
@@ -170,21 +170,14 @@ export default function ShortenForm({
             >
               {copied ? "Скопировано!" : "Копировать"}
             </button>
-            {!result.external && (
-              <Link
-                href={result.trackUrl}
-                className="rounded-xl bg-gradient-to-r from-accent to-accent-2 px-5 py-3 text-sm font-semibold text-white shadow-md shadow-accent/25 transition hover:opacity-90 text-center whitespace-nowrap"
-              >
-                Статистика
-              </Link>
-            )}
+            <Link
+              href={result.trackUrl}
+              className="rounded-xl bg-gradient-to-r from-accent to-accent-2 px-5 py-3 text-sm font-semibold text-white shadow-md shadow-accent/25 transition hover:opacity-90 text-center whitespace-nowrap"
+            >
+              Статистика
+            </Link>
           </div>
           <p className="mt-3 truncate text-xs text-zinc-500">{result.longUrl}</p>
-          {result.external && (
-            <p className="mt-2 text-xs text-zinc-500">
-              Это внешний сервис сокращения — статистика переходов на нашем сайте не отслеживается.
-            </p>
-          )}
         </div>
       )}
     </div>

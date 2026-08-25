@@ -74,26 +74,6 @@ export async function POST(req: NextRequest) {
       ? body.provider
       : "own";
 
-  let externalShortUrl: string | null = null;
-  if (provider !== "own") {
-    try {
-      externalShortUrl = await shortenExternal(provider, url);
-    } catch (err) {
-      console.error(`Ошибка ${provider}:`, err);
-      const message = err instanceof Error ? err.message : "";
-      return NextResponse.json(
-        {
-          error: message.startsWith("CLEANURI_ERROR")
-            ? `CleanURI не смог сократить ссылку: ${message.slice("CLEANURI_ERROR: ".length)}`
-            : message.startsWith("CLCKRU_ERROR")
-              ? `clck.ru не смог сократить ссылку: ${message.slice("CLCKRU_ERROR: ".length)}`
-              : "Сервис сокращения временно недоступен, попробуйте ещё раз",
-        },
-        { status: 502 }
-      );
-    }
-  }
-
   let supabase: SupabaseClient;
   try {
     supabase = getSupabase();
@@ -147,6 +127,30 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const origin = req.nextUrl.origin;
+
+    // Для внешних сократителей указываем наш адрес-счётчик,
+    // чтобы переход шёл через нас и попадал в статистику
+    let externalShortUrl: string | null = null;
+    if (provider !== "own") {
+      try {
+        externalShortUrl = await shortenExternal(provider, `${origin}/${code}`);
+      } catch (err) {
+        console.error(`Ошибка ${provider}:`, err);
+        const message = err instanceof Error ? err.message : "";
+        return NextResponse.json(
+          {
+            error: message.startsWith("CLEANURI_ERROR")
+              ? `CleanURI не смог сократить ссылку: ${message.slice("CLEANURI_ERROR: ".length)}`
+              : message.startsWith("CLCKRU_ERROR")
+                ? `clck.ru не смог сократить ссылку: ${message.slice("CLCKRU_ERROR: ".length)}`
+                : "Сервис сокращения временно недоступен, попробуйте ещё раз",
+          },
+          { status: 502 }
+        );
+      }
+    }
+
     const { data: link, error } = await supabase
       .from("links")
       .insert({ code, url, user_id: userId, track_id: trackId, short_url: externalShortUrl })
@@ -167,8 +171,6 @@ export async function POST(req: NextRequest) {
         { status: 500 }
       );
     }
-
-    const origin = req.nextUrl.origin;
 
     return NextResponse.json({
       shortUrl: link.short_url ?? `${origin}/${link.code}`,

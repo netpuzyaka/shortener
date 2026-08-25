@@ -161,27 +161,18 @@ export default function Dashboard({
                 </p>
               </div>
               <div className="flex items-center gap-3 shrink-0">
-                {link.short_url ? (
-                  <div className="text-right">
-                    <p className="text-xs text-zinc-500">статистика</p>
-                    <p className="text-sm text-zinc-400">не отслеживается</p>
-                  </div>
-                ) : (
-                  <>
-                    <div className="text-right">
-                      <p className="text-xl font-bold text-white">
-                        {nf.format(link.total_clicks)}
-                      </p>
-                      <p className="text-xs text-zinc-500">переходов</p>
-                    </div>
-                    <Link
-                      href={`/track/${link.track_id ?? link.code}`}
-                      className="rounded-xl bg-gradient-to-r from-accent to-accent-2 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-accent/25 transition hover:opacity-90 whitespace-nowrap"
-                    >
-                      Статистика
-                    </Link>
-                  </>
-                )}
+                <div className="text-right">
+                  <p className="text-xl font-bold text-white">
+                    {nf.format(link.total_clicks)}
+                  </p>
+                  <p className="text-xs text-zinc-500">переходов</p>
+                </div>
+                <Link
+                  href={`/track/${link.track_id ?? link.code}`}
+                  className="rounded-xl bg-gradient-to-r from-accent to-accent-2 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-accent/25 transition hover:opacity-90 whitespace-nowrap"
+                >
+                  Статистика
+                </Link>
                 <button
                   onClick={() => remove(link.id)}
                   disabled={deleting === link.id}
