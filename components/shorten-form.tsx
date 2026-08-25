@@ -74,13 +74,13 @@ export default function ShortenForm({
 
   return (
     <div className="w-full">
-      <form onSubmit={handleSubmit} className="card p-2 sm:p-3 flex flex-col sm:flex-row gap-2 shadow-lg">
+      <form onSubmit={handleSubmit} className="card p-2 sm:p-3 flex flex-col sm:flex-row gap-2">
         <input
           type="url"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
           placeholder="Вставьте длинную ссылку…"
-          className="flex-1 rounded-xl bg-white px-4 py-3 text-base text-slate-900 outline-none border border-slate-200 focus:border-accent focus:ring-2 focus:ring-accent/15 transition"
+          className="flex-1 rounded-xl bg-white/[0.04] px-4 py-3 text-base text-white outline-none border border-white/10 focus:border-accent focus:ring-2 focus:ring-accent/20 transition"
           autoComplete="off"
           spellCheck={false}
         />
@@ -94,38 +94,38 @@ export default function ShortenForm({
       </form>
 
       {dbError === "db" && (
-        <div className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+        <div className="mt-4 rounded-xl border border-red-400/30 bg-red-400/10 px-4 py-3 text-sm text-red-300">
           Сервис временно недоступен: не удалось подключиться к базе данных.
         </div>
       )}
 
       {notFoundCode && (
-        <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+        <div className="mt-4 rounded-xl border border-amber-400/30 bg-amber-400/10 px-4 py-3 text-sm text-amber-300">
           Ссылка <span className="font-mono">/{notFoundCode}</span> не найдена. Создайте новую ниже.
         </div>
       )}
 
       {error && (
-        <div className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+        <div className="mt-4 rounded-xl border border-red-400/30 bg-red-400/10 px-4 py-3 text-sm text-red-300">
           {error}
         </div>
       )}
 
       {result && (
         <div className="card mt-4 p-5 !border-accent/40">
-          <p className="text-sm text-slate-500 mb-2">Ваша короткая ссылка готова:</p>
+          <p className="text-sm text-zinc-400 mb-2">Ваша короткая ссылка готова:</p>
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
             <a
               href={result.shortUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-1 truncate rounded-xl bg-slate-50 border border-slate-200 px-4 py-3 font-mono text-sm sm:text-base text-accent hover:border-accent/50 hover:bg-accent/5 transition-colors"
+              className="flex-1 truncate rounded-xl bg-white/[0.05] border border-white/10 px-4 py-3 font-mono text-sm sm:text-base text-accent-2 hover:border-accent-2/50 hover:bg-accent/10 transition-colors"
             >
               {result.shortUrl}
             </a>
             <button
               onClick={copyLink}
-              className="rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-medium text-slate-700 hover:border-accent hover:text-accent transition-colors whitespace-nowrap"
+              className="rounded-xl border border-white/15 bg-transparent px-5 py-3 text-sm font-medium text-zinc-300 hover:border-accent hover:text-white transition-colors whitespace-nowrap"
             >
               {copied ? "Скопировано!" : "Копировать"}
             </button>
@@ -136,7 +136,7 @@ export default function ShortenForm({
               Статистика
             </Link>
           </div>
-          <p className="mt-3 truncate text-xs text-slate-400">{result.longUrl}</p>
+          <p className="mt-3 truncate text-xs text-zinc-500">{result.longUrl}</p>
         </div>
       )}
     </div>

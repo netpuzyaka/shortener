@@ -149,10 +149,14 @@ export async function POST(req: NextRequest) {
     if (error || !link) {
       console.error("Ошибка создания ссылки:", error);
       const detail = error?.message ?? "неизвестная ошибка";
+      let hint = "";
+      if (detail.includes("fetch failed")) {
+        hint = ". Сайт не может достучаться до Supabase: проверьте переменную SUPABASE_URL на Vercel — она должна быть вида https://ВАШ-ПРОЕКТ.supabase.co";
+      } else if (detail.toLowerCase().includes("does not exist")) {
+        hint = ". Выполните schema.sql в SQL Editor Supabase";
+      }
       return NextResponse.json(
-        {
-          error: `Не удалось создать ссылку: ${detail}. Если написано "relation ... does not exist" — выполните schema.sql в SQL Editor Supabase`,
-        },
+        { error: `Не удалось создать ссылку: ${detail}${hint}` },
         { status: 500 }
       );
     }

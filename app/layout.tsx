@@ -26,7 +26,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <header className="sticky top-0 z-50 border-b border-slate-200/70 bg-white/75 backdrop-blur-md">
+        <header className="sticky top-0 z-50 border-b border-white/10 bg-background/80 backdrop-blur-md">
           <div className="mx-auto flex h-14 w-full max-w-5xl items-center justify-between px-4">
             <Link href="/" className="flex items-center gap-2 font-semibold tracking-tight">
               <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-accent to-accent-2 text-sm font-bold text-white shadow-sm">
@@ -34,19 +34,19 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               </span>
               <span>LinkShort</span>
             </Link>
-            <nav className="flex items-center gap-5 text-sm text-slate-500">
-              <Link href="/#features" className="hover:text-slate-900 transition-colors">
+            <nav className="flex items-center gap-5 text-sm text-zinc-400">
+              <Link href="/#features" className="hover:text-white transition-colors">
                 Возможности
               </Link>
-              <Link href="/#how" className="hover:text-slate-900 transition-colors">
+              <Link href="/#how" className="hover:text-white transition-colors">
                 Как работает
               </Link>
             </nav>
           </div>
         </header>
         <div className="flex-1 flex flex-col">{children}</div>
-        <footer className="border-t border-slate-200/70 bg-white/60 py-8">
-          <div className="mx-auto flex w-full max-w-5xl flex-col items-center gap-1.5 px-4 text-sm text-slate-500">
+        <footer className="border-t border-white/10 py-8">
+          <div className="mx-auto flex w-full max-w-5xl flex-col items-center gap-1.5 px-4 text-sm text-zinc-500">
             <p>LinkShort — бесплатный сократитель ссылок с аналитикой переходов</p>
             <p className="text-xs">Хостинг: Vercel · База данных: Supabase</p>
           </div>

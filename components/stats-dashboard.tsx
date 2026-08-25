@@ -82,9 +82,9 @@ function buildDaySeries(days: DayCount[], n: number) {
 function StatCard({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
     <div className="card p-5">
-      <p className="text-sm text-slate-500">{label}</p>
-      <p className="mt-1 text-3xl font-bold tracking-tight text-slate-900">{value}</p>
-      {hint && <p className="mt-1 text-xs text-slate-400">{hint}</p>}
+      <p className="text-sm text-zinc-400">{label}</p>
+      <p className="mt-1 text-3xl font-bold tracking-tight text-white">{value}</p>
+      {hint && <p className="mt-1 text-xs text-zinc-500">{hint}</p>}
     </div>
   );
 }
@@ -101,18 +101,18 @@ function ProgressList({
   const max = Math.max(1, ...items.map((i) => i.cnt));
   return (
     <div className="card p-5">
-      <h3 className="font-semibold text-slate-900">{title}</h3>
+      <h3 className="font-semibold text-white">{title}</h3>
       {items.length === 0 ? (
-        <p className="mt-3 text-sm text-slate-400">{emptyText}</p>
+        <p className="mt-3 text-sm text-zinc-500">{emptyText}</p>
       ) : (
         <ul className="mt-4 space-y-3">
           {items.slice(0, 8).map((item, i) => (
             <li key={i}>
               <div className="flex justify-between text-sm">
-                <span className="truncate pr-2 text-slate-700">{item.name ?? "Неизвестно"}</span>
-                <span className="text-slate-400 shrink-0">{fmt(item.cnt)}</span>
+                <span className="truncate pr-2 text-zinc-300">{item.name ?? "Неизвестно"}</span>
+                <span className="text-zinc-500 shrink-0">{fmt(item.cnt)}</span>
               </div>
-              <div className="mt-1 h-1.5 rounded-full bg-slate-100 overflow-hidden">
+              <div className="mt-1 h-1.5 rounded-full bg-white/10 overflow-hidden">
                 <div
                   className="h-full rounded-full bg-gradient-to-r from-accent to-accent-2"
                   style={{ width: `${(item.cnt / max) * 100}%` }}
@@ -127,12 +127,12 @@ function ProgressList({
 }
 
 const CHART_TOOLTIP_STYLE = {
-  backgroundColor: "#ffffff",
-  border: "1px solid #e2e8f0",
+  backgroundColor: "#16161f",
+  border: "1px solid rgba(255,255,255,0.12)",
   borderRadius: "12px",
   fontSize: "13px",
-  color: "#0f172a",
-  boxShadow: "0 8px 24px -12px rgba(16,24,40,0.25)",
+  color: "#e7e9f0",
+  boxShadow: "0 8px 24px -12px rgba(0,0,0,0.6)",
 };
 
 export default function StatsDashboard({
@@ -186,13 +186,13 @@ export default function StatsDashboard({
     return (
       <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-16 text-center">
         <div className="card mx-auto max-w-xl p-8">
-          <h1 className="text-2xl font-bold text-slate-900">База данных не настроена</h1>
-          <p className="mt-3 text-slate-500">
+          <h1 className="text-2xl font-bold text-white">База данных не настроена</h1>
+          <p className="mt-3 text-zinc-400">
             Выполните SQL-скрипт <span className="font-mono">schema.sql</span> в
             консоли Supabase (SQL Editor) и добавьте ключи проекта в переменные
             окружения.
           </p>
-          <Link href="/" className="mt-6 inline-block text-accent hover:underline">
+          <Link href="/" className="mt-6 inline-block text-accent-2 hover:underline">
             ← На главную
           </Link>
         </div>
@@ -202,14 +202,14 @@ export default function StatsDashboard({
 
   return (
     <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-10">
-      <Link href="/" className="text-sm text-slate-500 hover:text-slate-900 transition-colors">
+      <Link href="/" className="text-sm text-zinc-400 hover:text-white transition-colors">
         ← Создать ещё ссылку
       </Link>
 
       <div className="card mt-4 p-6">
         <div className="flex flex-col sm:flex-row sm:items-center gap-4">
           <div className="min-w-0 flex-1">
-            <p className="text-xs font-medium uppercase tracking-wider text-slate-400">
+            <p className="text-xs font-medium uppercase tracking-wider text-zinc-500">
               Статистика ссылки
             </p>
             <div className="mt-1 flex items-center gap-2">
@@ -217,21 +217,21 @@ export default function StatsDashboard({
                 href={shortUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="truncate font-mono text-xl sm:text-2xl font-bold text-accent hover:underline"
+                className="truncate font-mono text-xl sm:text-2xl font-bold text-accent-2 hover:underline"
               >
                 {shortUrl}
               </a>
               <button
                 onClick={copyLink}
-                className="shrink-0 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 hover:border-accent hover:text-accent transition-colors"
+                className="shrink-0 rounded-lg border border-white/15 bg-transparent px-3 py-1.5 text-xs font-medium text-zinc-300 hover:border-accent hover:text-white transition-colors"
               >
                 {copied ? "Скопировано!" : "Копировать"}
               </button>
             </div>
-            <p className="mt-1 truncate text-sm text-slate-500">
-              Ведёт на: <span className="text-slate-700">{url ?? "—"}</span>
+            <p className="mt-1 truncate text-sm text-zinc-400">
+              Ведёт на: <span className="text-zinc-200">{url ?? "—"}</span>
             </p>
-            <p className="mt-1 text-xs text-slate-400">
+            <p className="mt-1 text-xs text-zinc-500">
               Создана {createdAt ? fmtDateTime(createdAt) : "—"}
             </p>
           </div>
@@ -247,9 +247,9 @@ export default function StatsDashboard({
 
       <div className="mt-6 grid gap-4 lg:grid-cols-3">
         <div className="card p-5 lg:col-span-2">
-          <h3 className="font-semibold text-slate-900">Переходы за 30 дней</h3>
+          <h3 className="font-semibold text-white">Переходы за 30 дней</h3>
           {daySeries.every((d) => d.cnt === 0) ? (
-            <p className="mt-3 text-sm text-slate-400">
+            <p className="mt-3 text-sm text-zinc-500">
               Пока нет переходов — график появится после первого клика.
             </p>
           ) : (
@@ -258,25 +258,25 @@ export default function StatsDashboard({
                 <AreaChart data={daySeries} margin={{ top: 5, right: 5, left: -25, bottom: 0 }}>
                   <defs>
                     <linearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#6d5dfc" stopOpacity={0.35} />
+                      <stop offset="0%" stopColor="#7c5cff" stopOpacity={0.35} />
                       <stop offset="100%" stopColor="#22d3ee" stopOpacity={0.02} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(15,23,42,0.07)" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.07)" />
                   <XAxis
                     dataKey="day"
                     tickFormatter={(v: string) => v.slice(8) + "." + v.slice(5, 7)}
-                    stroke="#94a3b8"
+                    stroke="#71717a"
                     fontSize={11}
                     interval={4}
                   />
-                  <YAxis stroke="#94a3b8" fontSize={11} allowDecimals={false} />
+                  <YAxis stroke="#71717a" fontSize={11} allowDecimals={false} />
                   <Tooltip
                     contentStyle={CHART_TOOLTIP_STYLE}
                     labelFormatter={(v) => fmtDate(String(v))}
                     formatter={(v) => [fmt(Number(v ?? 0)), "переходов"]}
                   />
-                  <Area type="monotone" dataKey="cnt" stroke="#6d5dfc" strokeWidth={2} fill="url(#grad)" />
+                  <Area type="monotone" dataKey="cnt" stroke="#7c5cff" strokeWidth={2} fill="url(#grad)" />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
@@ -284,9 +284,9 @@ export default function StatsDashboard({
         </div>
 
         <div className="card p-5">
-          <h3 className="font-semibold text-slate-900">Устройства</h3>
+          <h3 className="font-semibold text-white">Устройства</h3>
           {devices.length === 0 ? (
-            <p className="mt-3 text-sm text-slate-400">Нет данных</p>
+            <p className="mt-3 text-sm text-zinc-500">Нет данных</p>
           ) : (
             <>
               <div className="mt-2 h-52">
@@ -311,14 +311,14 @@ export default function StatsDashboard({
               <ul className="mt-2 space-y-1.5">
                 {devices.map((d, i) => (
                   <li key={i} className="flex items-center justify-between text-sm">
-                    <span className="flex items-center gap-2 text-slate-700">
+                    <span className="flex items-center gap-2 text-zinc-300">
                       <span
                         className="h-2.5 w-2.5 rounded-full inline-block"
                         style={{ backgroundColor: PIE_COLORS[i % PIE_COLORS.length] }}
                       />
                       {d.name ?? "Другое"}
                     </span>
-                    <span className="text-slate-400">{fmt(d.cnt)}</span>
+                    <span className="text-zinc-500">{fmt(d.cnt)}</span>
                   </li>
                 ))}
               </ul>
@@ -329,9 +329,9 @@ export default function StatsDashboard({
 
       <div className="mt-6 grid gap-4 lg:grid-cols-3">
         <div className="card p-5 lg:col-span-2">
-          <h3 className="font-semibold text-slate-900">Топ стран</h3>
+          <h3 className="font-semibold text-white">Топ стран</h3>
           {countries.length === 0 ? (
-            <p className="mt-3 text-sm text-slate-400">Нет данных</p>
+            <p className="mt-3 text-sm text-zinc-500">Нет данных</p>
           ) : (
             <div className="mt-4 h-72">
               <ResponsiveContainer width="100%" height="100%">
@@ -340,11 +340,11 @@ export default function StatsDashboard({
                   layout="vertical"
                   margin={{ top: 0, right: 10, left: 10, bottom: 0 }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(15,23,42,0.07)" horizontal={false} />
-                  <XAxis type="number" stroke="#94a3b8" fontSize={11} allowDecimals={false} />
-                  <YAxis type="category" dataKey="name" width={110} stroke="#94a3b8" fontSize={12} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.07)" horizontal={false} />
+                  <XAxis type="number" stroke="#71717a" fontSize={11} allowDecimals={false} />
+                  <YAxis type="category" dataKey="name" width={110} stroke="#71717a" fontSize={12} />
                   <Tooltip contentStyle={CHART_TOOLTIP_STYLE} formatter={(v) => [fmt(Number(v ?? 0)), "переходов"]} />
-                  <Bar dataKey="cnt" radius={[0, 6, 6, 0]} fill="#6d5dfc" />
+                  <Bar dataKey="cnt" radius={[0, 6, 6, 0]} fill="#7c5cff" />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -352,17 +352,17 @@ export default function StatsDashboard({
         </div>
 
         <div className="card p-5">
-          <h3 className="font-semibold text-slate-900">Активность по часам (UTC)</h3>
+          <h3 className="font-semibold text-white">Активность по часам (UTC)</h3>
           <div className="mt-4 h-72">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={hourSeries} margin={{ top: 5, right: 5, left: -25, bottom: 0 }}>
                 <XAxis
                   dataKey="hour"
-                  stroke="#94a3b8"
+                  stroke="#71717a"
                   fontSize={10}
                   interval={3}
                 />
-                <YAxis stroke="#94a3b8" fontSize={11} allowDecimals={false} />
+                <YAxis stroke="#71717a" fontSize={11} allowDecimals={false} />
                 <Tooltip
                   contentStyle={CHART_TOOLTIP_STYLE}
                   formatter={(v) => [fmt(Number(v ?? 0)), "переходов"]}
@@ -383,16 +383,16 @@ export default function StatsDashboard({
       </div>
 
       <div className="card mt-6 overflow-hidden">
-        <h3 className="p-5 pb-3 font-semibold text-slate-900">Последние переходы</h3>
+        <h3 className="p-5 pb-3 font-semibold text-white">Последние переходы</h3>
         {recent.length === 0 ? (
-          <p className="px-5 pb-5 text-sm text-slate-400">
+          <p className="px-5 pb-5 text-sm text-zinc-500">
             Переходов пока нет. Откройте короткую ссылку, чтобы увидеть статистику.
           </p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-slate-100 text-left text-xs uppercase tracking-wider text-slate-400">
+                <tr className="border-b border-white/10 text-left text-xs uppercase tracking-wider text-zinc-500">
                   <th className="px-5 py-3 font-medium">Время</th>
                   <th className="px-5 py-3 font-medium">IP</th>
                   <th className="px-5 py-3 font-medium">Страна</th>
@@ -405,15 +405,15 @@ export default function StatsDashboard({
               </thead>
               <tbody>
                 {recent.map((c, i) => (
-                  <tr key={i} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/70">
-                    <td className="px-5 py-3 whitespace-nowrap text-slate-600">{fmtDateTime(c.created_at)}</td>
-                    <td className="px-5 py-3 font-mono text-slate-400">{maskIp(c.ip)}</td>
-                    <td className="px-5 py-3 text-slate-700">{c.country ?? "—"}</td>
-                    <td className="px-5 py-3 text-slate-700">{c.region ?? "—"}</td>
-                    <td className="px-5 py-3 text-slate-700">{c.city ?? "—"}</td>
-                    <td className="px-5 py-3 text-slate-700">{c.device ?? "—"}</td>
-                    <td className="px-5 py-3 text-slate-700">{c.browser ?? "—"}</td>
-                    <td className="px-5 py-3 max-w-40 truncate text-slate-400" title={c.referrer ?? ""}>
+                  <tr key={i} className="border-b border-white/5 last:border-0 hover:bg-white/[0.03]">
+                    <td className="px-5 py-3 whitespace-nowrap text-zinc-300">{fmtDateTime(c.created_at)}</td>
+                    <td className="px-5 py-3 font-mono text-zinc-500">{maskIp(c.ip)}</td>
+                    <td className="px-5 py-3 text-zinc-200">{c.country ?? "—"}</td>
+                    <td className="px-5 py-3 text-zinc-200">{c.region ?? "—"}</td>
+                    <td className="px-5 py-3 text-zinc-200">{c.city ?? "—"}</td>
+                    <td className="px-5 py-3 text-zinc-200">{c.device ?? "—"}</td>
+                    <td className="px-5 py-3 text-zinc-200">{c.browser ?? "—"}</td>
+                    <td className="px-5 py-3 max-w-40 truncate text-zinc-500" title={c.referrer ?? ""}>
                       {hostOf(c.referrer)}
                     </td>
                   </tr>
