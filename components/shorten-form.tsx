@@ -111,6 +111,13 @@ export default function ShortenForm({
             Ссылка будет короче — от сервиса {PROVIDER_LABELS[provider]}.
             Статистика переходов всё равно отслеживается: клик незаметно
             проходит через наш сервер.
+            {provider === "clckru" && (
+              <span className="text-zinc-500">
+                {" "}
+                Учтите: clck.ru ограничивает частоту — при ошибке подождите
+                несколько секунд.
+              </span>
+            )}
           </p>
         )}
       </div>

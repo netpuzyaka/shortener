@@ -28,16 +28,28 @@ async function shortenWithCleanuri(url: string): Promise<string> {
 }
 
 async function shortenWithClckRu(url: string): Promise<string> {
-  const res = await fetch(
-    `https://clck.ru/--?url=${encodeURIComponent(url)}`
-  );
-  const text = (await res.text()).trim();
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const res = await fetch(
+      `https://clck.ru/--?url=${encodeURIComponent(url)}`
+    );
+    const text = (await res.text()).trim();
 
-  if (!res.ok || !/^https:\/\/clck\.ru\/[a-zA-Z0-9]+$/.test(text)) {
-    throw new Error(`CLCKRU_ERROR: HTTP ${res.status} ${text.slice(0, 120)}`);
+    if (res.ok && /^https:\/\/clck\.ru\/[a-zA-Z0-9]+$/.test(text)) {
+      return text;
+    }
+
+    // 400/429 = лимит запросов clck.ru (примерно 1 в секунду) — пробуем ещё раз с паузой
+    if ((res.status === 400 || res.status === 429) && attempt < 2) {
+      await new Promise((r) => setTimeout(r, 1600 * (attempt + 1)));
+      continue;
+    }
+
+    throw new Error(
+      `CLCKRU_ERROR: HTTP ${res.status} ${text.slice(0, 120)}`
+    );
   }
 
-  return text;
+  throw new Error("CLCKRU_RATELIMIT");
 }
 
 export async function shortenExternal(

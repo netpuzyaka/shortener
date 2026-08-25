@@ -142,9 +142,11 @@ export async function POST(req: NextRequest) {
           {
             error: message.startsWith("CLEANURI_ERROR")
               ? `CleanURI не смог сократить ссылку: ${message.slice("CLEANURI_ERROR: ".length)}`
-              : message.startsWith("CLCKRU_ERROR")
-                ? `clck.ru не смог сократить ссылку: ${message.slice("CLCKRU_ERROR: ".length)}`
-                : "Сервис сокращения временно недоступен, попробуйте ещё раз",
+              : message.startsWith("CLCKRU_RATELIMIT")
+                ? "clck.ru ограничивает частоту сокращений: подождите 2–3 секунды и попробуйте снова"
+                : message.startsWith("CLCKRU_ERROR")
+                  ? `clck.ru не смог сократить ссылку: ${message.slice("CLCKRU_ERROR: ".length)}`
+                  : "Сервис сокращения временно недоступен, попробуйте ещё раз",
           },
           { status: 502 }
         );
